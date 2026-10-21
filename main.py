@@ -1,10 +1,23 @@
 import time
+import os
 import queue
 import numpy as np
-from src import iniciar_captura, parar_captura, SileroVAD
+from dotenv import load_dotenv
+from src.audio import iniciar_captura, parar_captura, SileroVAD
+from src.stt import transcrever_audio
+from faster_whisper import WhisperModel
 
+# Carrega as variáveis do arquivo .env para a memória
+load_dotenv()
+
+# Captura o tamanho do modelo configurado no .env (se não achar, usa 'base' como padrão)
+model_size = os.getenv("WHISPER_MODEL_SIZE", "base")
+
+print(f"[Jarvis] Inicializando o modelo de transcrição: {model_size}")
 
 def main():
+    # Inicializa o Whisper
+    model = WhisperModel(model_size, device="cpu", compute_type="int8")
     # Inicializa o VAD
     vad = SileroVAD()
     # Cria uma fila para guardar os chunks
@@ -15,7 +28,16 @@ def main():
     iniciar_captura(fila_de_audio) #Liga o microfone em segundo plano
     try:
         while True:
-            chunk = fila_de_audio.get()
+            try:
+                # Pega o áudio da fila sem travar o loop para sempre
+                chunk = fila_de_audio.get_nowait()
+            except queue.Empty:
+                time.sleep(0.01)
+                continue
+
+            if gravando_frase:
+                buffer_fala.append(chunk)
+        
             evento = vad.processar_chunk(chunk)
 
             if evento:
@@ -23,21 +45,30 @@ def main():
                     print("\n🎙️ [VAD] Fala detectada! Gravando...")
                     gravando_frase = True
                     buffer_fala.clear()
-                elif "end" in evento:
+                    buffer_fala.append(chunk) 
+                elif "end" in evento and gravando_frase:
                     print("🛑 [VAD] Fim da fala detectado!")
                     gravando_frase = False
 
-                    # Junta todos os chunks acumulados na RAM em um único array NumPy
-                    audio_completo = np.concatenate(buffer_fala, axis=0)
+                    if len(buffer_fala) > 0:
+                        # Junta todos os chunks acumulados na RAM em um único array NumPy
+                        audio_completo = np.concatenate(buffer_fala, axis=0)
+                        print(f"⚡ Frase capturada na RAM com {len(audio_completo)} amostras.")
 
-                    print(f"⚡ Frase capturada na RAM com {len(audio_completo)} amostras.")
+                        # Transcreve o áudio capturado
+                        print("⏳ Transcrevendo...")
+                        segments, info = transcrever_audio(model, audio_completo)
+                        texto_completo = " ".join([segment.text for segment in segments]).strip()
 
+                        if texto_completo:
+                            print(f"📝 Transcrição: \"{texto_completo}\"")
+                        else:
+                            print("📝 Transcrição: (Áudio incompreensível ou silêncio)")
+                    
+                    # Limpa o buffer para a próxima frase e reseta o VAD
+                    buffer_fala.clear()
                     vad.resetar()
 
-            if gravando_frase:
-                buffer_fala.append(chunk)
-
-            time.sleep(0.01)
 
     except KeyboardInterrupt:
         print("\n[INFO] Encerrando aplicação...")
