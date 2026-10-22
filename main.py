@@ -17,7 +17,7 @@ print(f"[Jarvis] Inicializando o modelo de transcrição: {model_size}")
 
 def main():
     # Inicializa o Whisper
-    model = WhisperModel(model_size, device="cpu", compute_type="int8")
+    model = WhisperModel(model_size, device="cpu", compute_type="float32")
     # Inicializa o VAD
     vad = SileroVAD()
     # Cria uma fila para guardar os chunks
