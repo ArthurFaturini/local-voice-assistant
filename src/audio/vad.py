@@ -1,7 +1,7 @@
 import torch
 
 class SileroVAD:
-    def __init__(self, sample_rate=16000, threshold=0.5, min_silence_duration_ms=1500):
+    def __init__(self, sample_rate=16000, threshold=0.6, min_silence_duration_ms=1500):
         self.sample_rate = sample_rate
         
         # Carrega o modelo leve do Silero via TorchHub
