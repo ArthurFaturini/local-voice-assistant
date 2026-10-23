@@ -5,10 +5,14 @@ import numpy as np
 from dotenv import load_dotenv
 from src.audio import iniciar_captura, parar_captura, SileroVAD
 from src.stt import transcrever_audio
+from src.llm.client import LLMClient
 from faster_whisper import WhisperModel
 
 # Carrega as variáveis do arquivo .env para a memória
 load_dotenv()
+
+# Inicializa a LLM (escolha o modelo carregado no seu Ollama local
+llm = LLMClient(model_name="jarvis-q5km")
 
 # Captura o tamanho do modelo configurado no .env (se não achar, usa 'base' como padrão)
 model_size = os.getenv("WHISPER_MODEL_SIZE", "base")
@@ -17,7 +21,7 @@ print(f"[Jarvis] Inicializando o modelo de transcrição: {model_size}")
 
 def main():
     # Inicializa o Whisper
-    model = WhisperModel(model_size, device="cpu", compute_type="float32")
+    model = WhisperModel(model_size, device="cpu", compute_type="int8")
     # Inicializa o VAD
     vad = SileroVAD()
     # Cria uma fila para guardar os chunks
@@ -64,6 +68,13 @@ def main():
                             print(f"📝 Transcrição: \"{texto_completo}\"")
                         else:
                             print("📝 Transcrição: (Áudio incompreensível ou silêncio)")
+
+                        print("🤖 JARVIS: ", end="", flush=True)
+                        # Consome o stream da LLM
+                        for chunk in llm.generate_stream(texto_completo):
+                            print(chunk, end="", flush=True)
+
+                        print("\n")
                     
                     # Limpa o buffer para a próxima frase e reseta o VAD
                     buffer_fala.clear()
