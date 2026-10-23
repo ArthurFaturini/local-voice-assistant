@@ -1,9 +1,6 @@
 import sounddevice as sd
 
-import threading
-
 fs = 16000 #taxa de amostragem
-duration = 5 #segundos
 block_size = 512 #tamanho da chunk de audio
 canais = 1
 sd.default.channels = 1, 13 #define input e output

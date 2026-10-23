@@ -5,7 +5,7 @@ import numpy as np
 prompt_contexto = (
         "Jarvis, Python, VS Code, Git, GitHub, Pull Request, Commit, Merge, Branch,"
         "VAD, Silero, Whisper, STT, LLM, NumPy, RAM, Asyncio, API, Docker, Termux, "
-        "Tailscale, JSON, Script, RU, gás."
+        "Tailscale, JSON, Script, RU, gás, Chrome, tokens, IA local, output"
     )
 
 def transcrever_audio(modelo, buffer_audio):
