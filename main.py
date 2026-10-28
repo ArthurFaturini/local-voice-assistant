@@ -12,7 +12,7 @@ from faster_whisper import WhisperModel
 load_dotenv()
 
 # Inicializa a LLM (escolha o modelo carregado no seu Ollama local
-llm = LLMClient(model_name="jarvis-q5km")
+llm = LLMClient(model_name="LLM_MODEL_NAME")
 
 # Captura o tamanho do modelo configurado no .env (se não achar, usa 'base' como padrão)
 model_size = os.getenv("WHISPER_MODEL_SIZE", "base")
@@ -21,7 +21,7 @@ print(f"[Jarvis] Inicializando o modelo de transcrição: {model_size}")
 
 def main():
     # Inicializa o Whisper
-    model = WhisperModel(model_size, device="cpu", compute_type="int8")
+    model = WhisperModel(model_size, device="WHISPER_MODEL_DEVICE", compute_type="WHISPER_MODEL_COMPUTE_TYPE")
     # Inicializa o VAD
     vad = SileroVAD()
     # Cria uma fila para guardar os chunks
