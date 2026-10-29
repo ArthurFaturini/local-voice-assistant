@@ -16,12 +16,14 @@ llm = LLMClient(model_name="LLM_MODEL_NAME")
 
 # Captura o tamanho do modelo configurado no .env (se não achar, usa 'base' como padrão)
 model_size = os.getenv("WHISPER_MODEL_SIZE", "base")
+device = os.getenv("WHISPER_MODEL_DEVICE", "cpu")
+compute_type = os.getenv("WHISPER_MODEL_COMPUTE_TYPE", "int8")
 
 print(f"[Jarvis] Inicializando o modelo de transcrição: {model_size}")
 
 def main():
     # Inicializa o Whisper
-    model = WhisperModel(model_size, device="WHISPER_MODEL_DEVICE", compute_type="WHISPER_MODEL_COMPUTE_TYPE")
+    model = WhisperModel(model_size, device=device, compute_type=compute_type)
     # Inicializa o VAD
     vad = SileroVAD()
     # Cria uma fila para guardar os chunks
