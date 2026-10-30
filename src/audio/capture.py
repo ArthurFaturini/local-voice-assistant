@@ -10,7 +10,9 @@ _stream = None #stream ativa
 def callback_entrada(indata, frames, time, status, fila_de_audio):
     """Executada em segundo plano a cada novo chunk de áudio capturado."""
     if status:
-        print(status, flush=True)
+        # Imprime apenas se for um erro/aviso diferente de input_overflow
+        if not status.input_overflow:
+            print(status, flush=True)
     # Coloca uma cópia do chunk de áudio na fila para processamento
     fila_de_audio.put(indata.copy())
 

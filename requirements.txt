@@ -29,6 +29,8 @@ nvidia-cudnn-cu12==9.27.0.42
 ollama==0.6.3
 onnxruntime==1.31.0
 packaging==26.3
+pathvalidate==3.3.1
+piper-tts==1.8.0
 protobuf==7.36.2
 psutil==7.2.2
 pycparser==3.11
